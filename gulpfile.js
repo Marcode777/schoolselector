@@ -102,12 +102,281 @@ gulp.task("default", ["copy"], function(){
 
 
 
+//We will start exactly from where we left in the part 1. 
+//So far we have a fully functional front end react app, next we need to setup our application's backend, so let's start with installing mondodb locally if you do not have that already. 
+//I have prepared this demo app on mongodb version 3.0.5 and node.js version 4.2.3, but it should work fine with older versions as well.
+//npm install mongoose --python=python2.7 --save
+//npm install body-parser --save
+//npm install underscore --save
+//mongoose is a document object mapper, we will use it to interact with mongodb in our application, we have specified python version explicity to avoid installation issues you might face, if there are more than one versions of python installed in your system. body-parser module is needed to parse http request's body since express.js does not have an in built support for this. underscore module has tons of very useful utility functions which make it easy for us to focus on our application's business logic rather than spending too much time writing utility code.
+//We are now done with the setup so let's start writting some express code.
+
+//implementing REST endpoints
+//Add two new directories "data" and "controllers" inside "server" directory of your app. As you might have guessed, "data" directory is going to contain mongoose data models and "controllers" directory will have express routers. 
+//In our application there is going to be only one model School so let's add a new file "school.js" in data directory and add the following code in it:
+//var mongoose = require("mongoose");
+//var schoolSchema = mongoose.Schema({
+//    name: String,
+//    tagline: String
+// });
+//module.exports = mongoose.model("school", schoolSchema);
+
+//In the above code we have created our very simple model "school" which has only two properties name and tagline of type String. 
+//Next let's create our controller, add a new file "schoolController.js" in the controllers directory and add the following code in it:
+//var mongoose = require("mongoose");
+// var School = require("../data/school");
+// var _ = require("underscore");
+
+// var router = require("express").Router();
+// router.route("/schools/:id?").get(getSchools).post(addSchool).delete(deleteSchool);
+
+// function getSchools(req, res) {
+//     School.find(function (err, schools) {
+//         if (err)
+//             res.send(err);
+//         else
+//             res.json(schools);
+//     });
+// }
+
+// function addSchool(req, res) {
+//     var school = new School(_.extend({}, req.body));
+//     school.save(function (err) {
+//         if (err)
+//             res.send(err);
+//         else
+//             res.json(school);
+//     });
+// }
+
+// function deleteSchool(req, res) {
+//     var id = req.params.id;
+//     School.remove({ _id: id }, function (err, removed) {
+//         if (err)
+//             res.send(err)
+//         else
+//             res.json(removed);
+//     });
+// }
+
+// module.exports = router;
+
+
+
+
+// In the above code, we have created a new express router which has only one route "/schools/:id?" and for each HTTP verb we have a seperate request handler. 
+//We are going to use only GET, POST and DELETE in our application to keep it simple. 
+//Our route also has an optional route parameter which we will need in order to identify specific school while deleting it. 
+//To interact with the database for CRUD operation we are using our School model which we had created in the previous step.
+//Also note that in addSchool and deleteSchool functions, we are accessing req.body object which get's populated by the body-parser middleware. 
+//We will configure this in the next step. We are using undercore's extend utility function which copies the req.body object to an empty object to populate our model.
+
+
+
+
+//Now let's modify "server.js" file as shown below:
+
+// var express = require("express");
+// var bodyParser = require("body-parser");
+// var mongoose = require("mongoose");
+// var path = require("path");
+
+// //controllers
+// var schoolController = require("./controllers/schoolController");
+
+// //Express request pipeline
+// var app = express();
+// app.use(express.static(path.join(__dirname, "../app/dist")));
+// app.use(bodyParser.json())
+// app.use("/api", schoolController);
+
+// app.listen(7777, function () {
+//     console.log("Started listening on port", 7777);
+// });
+
+// // Connect to mongodb database
+// mongoose.connect("mongodb://localhost/schoolfinder"); ***this schoolfider database will be whatever I choose my database to be ***
 
 
 
 
 
 
+//We have made few changes in server.js file, we need body-parser and mongoose modules, we have configured bodyparser to parse json payloads on http requests, also we have mounted our schoolController to /api route, so any request in the form of /api/schools or /api/schools/xxxx will be handled by schoolController. 
+//Further we need to connect to mongodb database using mongoose.connect function. schoolfinder (in my case schoolselector) is our database name which will get created automatically when you insert your first record.
+//Please ensure that mondodb instance is running before you run the app, you can also change the mongodb connection string to a remote mongo server if you want.
+//So at this point we have our backend APIs ready, let's revisit the react code to implement REST APIs calls.
+
+
+
+
+
+
+
+
+//Plugging REST to react
+//We need some library to make ajax calls to backend APIs, I will be using JQuery for this, but you can of cource pick your own favorite. We also need a promise library to avoid nested and painful callbacks. 
+//Let's install JQuery and es6-promise modules using npm
+//npm install jquery --save
+//npm install es6-promise --save
+
+//Next add a new directory "services" inside "app" directory and add a new file "schoolService.js". This file is going to contain REST APIs calls, let's add the folloing code in it:
+
+//var $ = require("jquery");
+// var promise = require("es6-promise");
+// var resourceUrl = "http://localhost:7777/api/schools";
+
+// module.exports = {
+//     addSchool: function (school) {
+//         var Promise = promise.Promise;
+//         return new Promise(function (resolve, reject) {
+//             $.ajax({
+//                 url: resourceUrl,
+//                 data: JSON.stringify(school),
+//                 method: "POST",
+//                 dataType: "json",
+//                 contentType: "application/json",
+//                 success: resolve,
+//                 error: reject
+//             });
+//         });
+//     },
+//     getSchools: function () {
+//         var Promise = promise.Promise;
+//         return new Promise(function (resolve, reject) {
+//             $.ajax({
+//                 url: resourceUrl,
+//                 method: "GET",
+//                 dataType: "json",
+//                 success: resolve,
+//                 error: reject
+//             });
+//         });
+//     },
+//     deleteSchool: function (school) {
+//         var Promise = promise.Promise;
+//         return new Promise(function (resolve, reject) {
+//             $.ajax({
+//                 url: resourceUrl + "/" + school._id,
+//                 method: "DELETE",
+//                 dataType: "json",
+//                 success: resolve,
+//                 error: reject
+//             });
+//         });
+//     }
+//}
+
+
+//Above code has some very familiar JQuery ajax calls, the only thing I want to highlight is, the way we have used Promises. 
+//We attach JQuery's success and error handlers to Promise object's resolve and reject callbacks and we return the Promise object itself. 
+//You can find more information about Javascript promises here, I am not going to discuss promises here, it deserves it's own separate article.
+
+
+
+//Now let's modify "schoolsStore.js" and "main.jsx" files as shown below so that our app starts using the schoolService to handle data rather showing the dummy:
+
+// schoolsStore.js
+
+// var dispatcher = require("../dispatcher");
+// var schoolService = require("../services/schoolService");
+
+// function SchoolStore() {
+//     var listeners = [];
+
+//     function onChange(listener) {
+//         getSchools(listener);
+//         listeners.push(listener);
+//     }
+    
+//     function getSchools(cb){
+//         schoolService.getSchools().then(function (res) {
+//             cb(res);
+//         });
+//     }
+
+//     function addSchool(school) {
+//         schoolService.addSchool(school).then(function (res) {
+//             console.log(res);
+//             triggerListeners();
+//         });
+//     }
+
+//     function deleteSchool(school) {
+//         schoolService.deleteSchool(school).then(function (res) {
+//             console.log(res);
+//             triggerListeners();
+//         });
+//     }
+
+//     function triggerListeners() {
+//         getSchools(function (res) {
+//             listeners.forEach(function (listener) {
+//                 listener(res);
+//             });
+//         });
+//     }
+
+//     dispatcher.register(function (payload) {
+//         var split = payload.type.split(":");
+//         if (split[0] === "school") {
+//             switch (split[1]) {
+//                 case "addSchool":
+//                     addSchool(payload.school);
+//                     break;
+//                 case "deleteSchool":
+//                     deleteSchool(payload.school);
+//                     break;
+//             }
+//         }
+//     });
+
+//     return {
+//         onChange: onChange
+//     }
+// }
+
+// module.exports = SchoolStore();
+
+
+
+
+
+//main.jsx
+
+// var React = require("react");
+// var ReactDOM = require("react-dom");
+// var SchoolsList = require("./components/SchoolsList.jsx");
+// var schoolsStore = require("./stores/schoolsStore");
+// var _schools = [];
+// var getSchoolsCallback = function(schools){
+//     _schools = schools;
+//     render();
+// };
+// schoolsStore.onChange(getSchoolsCallback);
+
+// function render(){
+//     ReactDOM.render(<SchoolsList schools={_schools} />, document.getElementById("container"));    
+// }
+
+
+
+
+
+
+//Now run the gulp command and browse the app, please ensure you have mongodb instance up and running. 
+
+//Congratulations! there you have a full stack javascript app, 
+
+
+
+
+
+
+
+//Summary
+
+//As promised in the beginning, we have a finished version of full stack JavaScript app using react.js, express.js, node.js and mongodb. You can extend this app by implementing images upload feature for school that will give you few more areas to explore.
 
 
 
