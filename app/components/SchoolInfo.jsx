@@ -1,5 +1,5 @@
 var React = require("react");
-var actions = require("./actions/SchoolActions");
+var actions = require("../actions/SchoolActions");
 
 module.exports = React.createClass({
   deleteSchool: function(e){

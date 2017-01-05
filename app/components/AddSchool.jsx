@@ -21,7 +21,7 @@ module.exports = React.createClass({
   },
   render:function(){
     return(
-      <form className="form" onSubmit=[this.addSchool]>
+      <form className="form" onSubmit={this.addSchool}>
         <div className="form-group">
           <label className="control-label" htmlFor="tagline">Tagline:</label>
           <input type="text" className="form-control" id="tagline" name="tagline" value={this.state.address} onChange={this.handleInputChange} placeholder="Tagline"/>  
