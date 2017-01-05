@@ -23,6 +23,11 @@ module.exports = React.createClass({
     return(
       <form className="form" onSubmit={this.addSchool}>
         <div className="form-group">
+          <label className="control-label" htmlFor="name">Name:</label>
+          <input type="text" className="form-control" id="name" name="name" value={this.state.address}
+          onChange={this.handleInputChange} placeholder="Name"/>
+
+
           <label className="control-label" htmlFor="tagline">Tagline:</label>
           <input type="text" className="form-control" id="tagline" name="tagline" value={this.state.address} onChange={this.handleInputChange} placeholder="Tagline"/>  
         </div>
