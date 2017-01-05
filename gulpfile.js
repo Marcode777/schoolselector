@@ -72,6 +72,45 @@ gulp.task("default", ["copy"], function(){
 //*** take note that in the "main.jsx" file, requiring files with .jsx type has the .jsx suffix, as in var SchoolsList = require("./components/SchoolsList.jsx");, while requiring files with just the .js suffix are just the filenames, without the suffix as in var schoolsStore = require("./stores/schoolsStore");
 
 
+// for AddSchool.jsx file
+// adding behavior to components
+// Let's make our app a little more useful by adding add and delete functionality to it. We will create another react component, so let's add "AddSchool.jsx" file in "components" directory and add the following code in it
+//this component has some new syntax so let's quickly revisit.
+//1) We have added a form onSubmit handler "addSchool". You can add as many functions as you like within createClass parameter object.
+//2) Like we pass external data to a react components via attributes and we access this data by this.props object similar to that we can access internal state of our componet by this.state object. All react componets have their own internal state, and before we can use it, we need to initialize it by getInitialState function. This is a special function and the object it returns becomes the initial state of our components.
+//3) Like I have mentioned earlier, react does not support two-way-binding so we need to change the state ourself whenever we feel it's relevant, for example in our case whenever user enters some values in the form controls we update the state using handleInputChange function which get's triggered from onChange event handler. Notice we have used e.preventDefault() in event handlers to avoid page refresh.
+//4) When user clicks on "Add School" button, in the submit event handler we start the FLUX flow as shown in the following diagram:
+// Views --> Actions --> Dispatcher --> Store
+//5) From Event handler we call action helper, which create an action and calls dispatcher. Dispatcher broadcasts the action and since store is subscribed to that action it updates itself and renders the UI. That is precisely the FLUX flow.
+//Now let's update the "SchoolsList.jsx" as shown below so that it renders the "AddSchool" component inside it:
+
+
+// for SchoolsList.jsx file
+// we just added the AddSchool.jsx file as in var AddSchool = require("./AddSchool.jsx");
+//and also added the Component <AddSchool/> in the place where we said that we would add addSchool functionality
+//Also let's update the "SchoolInfo.jsx" to add delete functionality 
+
+
+// for SchoolInfo.jsx file
+// we just added the actions var via var actions = require("./actions/SchoolActions");
+// this allowed us to include the deleteSchool function via deleteSchool: function(e){e.preventDefault();actions.deleteSchool(this.props.info);},
+// and also added the span via <span className="pull-right text-uppercase delete-button" onClick={this.deleteSchool}>&times;</span>
+
+// Now run the gulp command again and refresh the page, and we have a fully functional react app running. Try adding/deleting school and it should work fine.
+// So now we have finished our app's front end portion, however our app has a problem, if you refresh the page, all the new schools you added or deleted, disappear. This is because we are not persisting any information yet. 
+// In the next part of this series we will create the backend for this app and we will also revisit our front end code to implement REST API calls.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

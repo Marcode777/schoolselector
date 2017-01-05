@@ -1,12 +1,13 @@
 var React = require("react");
 var SchoolInfo = require("./SchoolInfo.jsx");
+var AddSchool = require("./AddSchool.jsx");
 
 module.exports = React.createClass({
   render:function(){
   return(
     <div className="row">
       <div className="col-md-6">
-        // we will add addSchool functionality here
+        <AddSchool/>
       </div>
       <div className="col-md-6">
         {
